@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Why Do We Fall in Love?</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #ff5f9e, #ffc1cc); /* PEMBE geçişli */
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    header .logo {
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+
+    .container {
+      padding: 2rem;
+      text-align: center;
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      margin: 2rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      font-weight: 800;
+      text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .question {
+      display: none;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+      border-radius: 20px;
+      margin: 20px auto;
+      max-width: 700px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 0.6s ease;
+    }
+
+    .question.active {
+      display: block;
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .option-wrapper {
+      position: relative;
+      margin: 10px;
+    }
+
+    .options img {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 3px solid transparent;
+      border-radius: 16px;
+      transition: 0.3s;
+    }
+
+    .options img.selected {
+      border-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px #fff;
+    }
+
+    .heart {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      color: #ff3c8d;
+      animation: heartPop 0.5s ease forwards;
+    }
+
+    @keyframes heartPop {
+      0% {
+        transform: scale(0.3);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+    }
+
+    .prev-btn,
+    .next-btn,
+    .show-result-btn,
+    .restart-btn {
+      background: #fff;
+      color: #ff5f9e;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 20px 4px 0px;
+      user-select: none;
+    }
+
+    .restart-btn {
+      background: #ff5f9e;
+      color: white;
+    }
+
+    .restart-btn:hover {
+      background: #ff3073;
+    }
+
+    #result-card {
+      display: none;
+      font-size: 20px;
+      margin: 2rem auto;
+      max-width: 600px;
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 20px;
+      animation: fadeIn 1s ease forwards;
+      text-align: center;
+    }
+
+    #result-card h2 {
+      font-size: 24px;
+      margin-bottom: 1rem;
+    }
+
+    #result-card p {
+      font-size: 18px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+      color: #eee;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    @media (max-width: 600px) {
+      .options img {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Love Test</div>
+  </header>
+  <div class="container">
+    <h1>Why Do We Fall in Love?</h1>
+    <div id="quiz"></div>
+    <div>
+      <button class="prev-btn" onclick="prevQuestion()">Back</button>
+      <button class="next-btn" onclick="nextQuestion()">Next</button>
+      <button class="show-result-btn" onclick="showResult()">Show The Result</button>
+    </div>
+    <div id="result-card">
+      <h2 id="result-title"></h2>
+      <p id="result-quote"></p>
+      <button class="restart-btn" onclick="restartQuiz()">Start Again</button>
+    </div>
+  </div>
+  <footer>
+    © 2025 Love Test | Made with 💖 by You
+  </footer>
+
+  <script>
+    const questions = [
+      {
+        question: "Which season do you choose?",
+        options: ["img1.jpg", "img2.jpg", "img3.jpg", "img4.jpg"],
+        types: ["passionate", "mental", "trust", "adventure"]
+      },
+      {
+        question: "Which flower do you choose?",
+        options: ["img5.jpg", "img6.jpg", "img7.jpg", "img8.jpg"],
+        types: ["aesthetic", "mental", "trust", "passionate"]
+      },
+      {
+        question: "Which drink do you choose?",
+        options: ["img9.jpg", "img10.jpg", "img11.jpg", "img12.jpg"],
+        types: ["adventure", "trust", "aesthetic", "mental"]
+      },
+      {
+        question: "Which animal do you choose?",
+        options: ["img13.jpg", "img14.jpg", "img15.jpg", "img16.jpg"],
+        types: ["passionate", "adventure", "trust", "mental"]
+      },
+      {
+        question: "Which car do you choose?",
+        options: ["img17.jpg", "img18.jpg", "img19.jpg", "img20.jpg"],
+        types: ["aesthetic", "passionate", "adventure", "trust"]
+      }
+    ];
+
+    const results = {
+      passionate: {
+        title: "You are a passionate lover",
+        quote: "“Love is the fire of your soul.” – Seneca"
+      },
+      mental: {
+        title: "You are a lover who connects minds, not just hearts",
+        quote: "“True love is when souls find each other.” – Plato"
+      },
+      trust: {
+        title: "A lover who weaves trust and builds connections that last forever",
+        quote: "“Love grows with loyalty.” – Aristotle"
+      },
+      adventure: {
+        title: "You are in love with excitement and adventure",
+        quote: "“Love belongs to the courageous.” – Osho"
+      },
+      aesthetic: {
+        title: "You are a lover of aesthetics, captivated by the beauty in every detail",
+        quote: "“Beauty finds its meaning in love.” – Kant"
+      }
+    };
+
+    let currentQuestion = 0;
+    const answers = [];
+
+    const quizDiv = document.getElementById("quiz");
+
+    function loadQuestions() {
+      quizDiv.innerHTML = "";
+      questions.forEach((q, index) => {
+        const qDiv = document.createElement("div");
+        qDiv.classList.add("question");
+        if (index === 0) qDiv.classList.add("active");
+        qDiv.setAttribute("data-index", index);
+        qDiv.innerHTML = `
+          <h2>${q.question}</h2>
+          <div class="options">
+            ${q.options.map((img, i) => `
+              <div class="option-wrapper">
+                <img src="${img}" onclick="selectOption(${index}, ${i}, this)">
+              </div>`).join("")}
+          </div>
+        `;
+        quizDiv.appendChild(qDiv);
+      });
+      updateButtons();
+    }
+
+    function selectOption(qIndex, optionIndex, imgEl) {
+      const questionEls = document.querySelectorAll(`.question[data-index='${qIndex}'] .options img`);
+      questionEls.forEach(img => {
+        img.classList.remove("selected");
+        if (img.parentNode.querySelector(".heart")) {
+          img.parentNode.querySelector(".heart").remove();
+        }
+      });
+      imgEl.classList.add("selected");
+
+      const heart = document.createElement("div");
+      heart.classList.add("heart");
+      heart.innerHTML = "❤️";
+      imgEl.parentNode.appendChild(heart);
+
+      answers[qIndex] = questions[qIndex].types[optionIndex];
+    }
+
+    function nextQuestion() {
+      const qDivs = document.querySelectorAll(".question");
+      if (currentQuestion < qDivs.length - 1) {
+        qDivs[currentQuestion].classList.remove("active");
+        currentQuestion++;
+        qDivs[currentQuestion].classList.add("active");
+      }
+      updateButtons();
+    }
+
+    function prevQuestion() {
+      const qDivs = document.querySelectorAll(".question");
+      if (currentQuestion > 0) {
+        qDivs[currentQuestion].classList.remove("active");
+        currentQuestion--;
+        qDivs[currentQuestion].classList.add("active");
+      }
+      updateButtons();
+    }
+
+    function updateButtons() {
+      document.querySelector(".prev-btn").style.display = currentQuestion === 0 ? "none" : "inline-block";
+      document.querySelector(".next-btn").style.display = currentQuestion === questions.length - 1 ? "none" : "inline-block";
+      document.querySelector(".show-result-btn").style.display = currentQuestion === questions.length - 1 ? "inline-block" : "none";
+    }
+
+    function showResult() {
+      if (answers.length < questions.length || answers.includes(undefined)) {
+        alert("Please answer all the questions.");
+        return;
+      }
+
+      const counts = {};
+      answers.forEach(type => {
+        counts[type] = (counts[type] || 0) + 1;
+      });
+
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const topType = sorted[0][0];
+
+      const result = results[topType];
+      document.getElementById("result-title").textContent = result.title;
+      document.getElementById("result-quote").textContent = result.quote;
+      document.getElementById("result-card").style.display = "block";
+      document.querySelectorAll(".question").forEach(q => q.style.display = "none");
+      document.querySelector(".prev-btn").style.display = "none";
+      document.querySelector(".next-btn").style.display = "none";
+      document.querySelector(".show-result-btn").style.display = "none";
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      answers.length = 0;
+      document.getElementById("result-card").style.display = "none";
+      loadQuestions();
+    }
+
+    loadQuestions();
+  </script>
+</body>
+</html>
